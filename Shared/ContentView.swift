@@ -8,12 +8,12 @@
 import SwiftUI
 
 struct ImageView: View {
-    let image = (UIImage(named: "WhiteBackground"))
+    let image = (UIImage(named: "WhiteBackgroundSmall"))
     let text: String
 
     var body: some View {
         VStack {
-            Image(uiImage: textToImage(drawText: text, inImage: image!, atPoint: CGPoint(x: 20, y: 20)))
+            Image(uiImage: generateImageWithText(text: text)!)
                 .resizable()
                 .scaledToFit()
             Button(action: shareImage, label: {
@@ -27,35 +27,49 @@ struct ImageView: View {
     }
     
     func shareImage() {
-        let newImage = textToImage(drawText: text, inImage: image!, atPoint: CGPoint(x: 20, y: 20))
+        let newImage = generateImageWithText(text: text)
         
-        let av = UIActivityViewController(activityItems: [newImage], applicationActivities: nil)
+        let av = UIActivityViewController(activityItems: [newImage!], applicationActivities: nil)
         av.isModalInPresentation = true
         
         UIApplication.shared.windows.first?.rootViewController?.present(av, animated: true, completion: nil)
     }
     
-    func textToImage(drawText text: String, inImage image: UIImage, atPoint point: CGPoint) -> UIImage {
-        let textColor = UIColor.black
-        let textFont = UIFont(name: "Helvetica Bold", size: 122)!
+    func generateImageWithText(text: String) -> UIImage? {
+        let image = UIImage(named: "WhiteBackgroundSmall")!
 
-        let scale = UIScreen.main.scale
-        UIGraphicsBeginImageContextWithOptions(image.size, false, scale)
+        let imageView = UIImageView(image: image)
+        imageView.backgroundColor = UIColor.clear
+        imageView.frame = CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height)
 
-        let textFontAttributes = [
-            NSAttributedString.Key.font: textFont,
-            NSAttributedString.Key.foregroundColor: textColor,
-            ] as [NSAttributedString.Key : Any]
-        image.draw(in: CGRect(origin: CGPoint.zero, size: image.size))
-
-        let rect = CGRect(origin: point, size: image.size)
-        text.draw(in: rect, withAttributes: textFontAttributes)
-
-        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        let label = UILabel(frame: CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height))
+        label.backgroundColor = UIColor.clear
+        label.textAlignment = .center
+        label.textColor = UIColor.black
+        label.text = text
+        label.font = UIFont(name: "Helvetica Bold", size: 122)
+        label.adjustsFontSizeToFitWidth = true
+        
+        UIGraphicsBeginImageContextWithOptions(label.bounds.size, false, 0)
+        imageView.layer.render(in: UIGraphicsGetCurrentContext()!)
+        label.layer.render(in: UIGraphicsGetCurrentContext()!)
+        let imageWithText = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
+        
+        let imageView2 = UIImageView(image: imageWithText)
+        imageView2.backgroundColor = UIColor.clear
+        imageView2.frame = CGRect(x: 0, y: 0, width: image.size.width, height: image.size.width)
+        
+        let label2 = UILabel(frame: CGRect(x: 0, y: 0, width: image.size.width, height: image.size.width))
 
-        return newImage!
+        UIGraphicsBeginImageContextWithOptions(label2.bounds.size, false, 0)
+        imageView2.layer.render(in: UIGraphicsGetCurrentContext()!)
+        let imageWithText2 = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return imageWithText2
     }
+
 }
 
 struct ContentView: View {
