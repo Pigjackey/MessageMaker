@@ -8,9 +8,17 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var transformText: String = "Welcome!"
+
     var body: some View {
-        Text("Hello, world!")
-            .padding()
+        VStack {
+            Text(transformText)
+                .padding()
+            
+            TextField("Placeholder", text: $transformText)
+                .border(Color(UIColor.separator))
+        }
+        .textFieldStyle(RoundedBorderTextFieldStyle())
     }
 }
 
